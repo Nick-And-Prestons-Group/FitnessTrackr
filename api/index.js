@@ -8,10 +8,39 @@ const { requireUser } = require("./utilities");
 
 const { JWT_SECRET } = process.env;
 const jwt = require("jsonwebtoken");
+const { getUserById } = require("../db/users");
 require("dotenv").config();
 
 router.get("/health", async (req, res, next) => {
     res.send(`<h1>All is well, server is up!</h1>`)
+});
+
+router.use(async (req, res, next) => {
+    const prefix = "Bearer ";
+    const auth = req.header("Authorization");
+
+    if (!auth) {
+        console.log("You do not have a web token!")
+        next();
+    } else if (auth.startsWith(prefix)) {
+        const token = auth.slice(prefix.length)
+
+        try {
+            const { id } = jwt.verify(token, JWT_SECRET);
+
+            if (id) {
+                req.user = await getUserById(id);
+                next();
+            }
+        } catch ({name, message}) {
+            next({name, message});
+        }
+    } else {
+        next({
+            name: "Authorization Header Error",
+            message: `Authorization token must start with ${prefix}`
+        });
+    }
 });
 
 router.use("/users", usersRouter);
