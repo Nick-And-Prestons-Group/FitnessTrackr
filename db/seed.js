@@ -1,4 +1,4 @@
-const { client } = require('./index')
+const { client } = require('./client')
 
 // Startup Functions------------------------------------
 async function dropTables() {
