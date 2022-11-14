@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
 const { requireUser } = require("./utilities");
 const { createUser, getUser, getUserById, getUserByUsername } = require("../db/users");
+const { getAllRoutines, getAllRoutinesByUser, getPublicRoutinesByUser } = require("../db/routines");
 
 usersRouter.post("/register", async (req, res, next) => {
     const { username, password, name } = req.body;
@@ -75,7 +76,49 @@ usersRouter.post("/login", async (req, res, next) => {
     }
 });
 
-// user/me
-// user/:username/routines
+// not fully functional yet
+usersRouter.get("/me", requireUser, async (req, res, next) => {
+    const { username, name, routines } = req.body;
+
+    try {
+        const userRoutines = await getAllRoutinesByUser({username});
+
+        if () {
+            res.send({
+                username: username,
+                name: name,
+                routines: userRoutines
+            })
+        } else {
+            next({
+                name: "Unauthorized user error",
+                message: "This user's routines are private"
+            })
+        }
+    } catch ({name, message}) {
+        next({name, messsage})
+    }
+});
+
+// not fully functional yet
+usersRouter.get("/:username/routines", async (req, res, next) => {
+    const { username } = req.params
+    const { routines } = req.body;
+    try {
+        if (username) {
+            const routines = await getPublicRoutinesByUser(username);
+            res.send({routines: routines})
+        } else {
+            next({
+                name: "Invalid User Error",
+                message: "This user does not exist"
+            })
+        }
+
+    } catch ({name, message}) {
+        next({name, message})
+    }
+});
+
 
 module.exports = usersRouter;
