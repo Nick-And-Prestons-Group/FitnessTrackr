@@ -1,19 +1,31 @@
 const express = require("express");
 const morgan = require("morgan");
-const { client } = require("./db/index");
-
+const { client } = require("./db/");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const app = express();
 
-client.connect();
-
+app.use(express.json());
 app.use(morgan("dev"));
+app.use(express.urlencoded({ extended: false }));
 
 const staticMiddleware = express.static(path.join(__dirname, "public"));
 app.use(staticMiddleware);
 
-app.get("/", (req, res, next) => {
-    res.send(`<h1>I really like github!</h1>`);
+const router = require("./api");
+app.use("/api", router);
+
+app.use((req, res, next) => {
+    console.log("This is the body of the request ", req.body);
+    next();
 });
+
+app.get("/", (req, res, next) => {
+    res.send(`<h1>Welcome to the homepage!</h1>`);
+});
+
+
+client.connect();
 
 const PORT = 3000;
 

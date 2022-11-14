@@ -4,10 +4,13 @@ const usersRouter = require("./users");
 const activitiesRouter = require("./activities");
 const routinesRouter = require("./routines");
 const routineActivitiesRouter = require("./routineActivities");
+const { requireUser } = require("./utilities");
 
-// code here
+// JWT SECRET and other requires relating to web token here
 
-
+router.get("/health", async (req, res, next) => {
+    // code here
+});
 
 router.use("/users", usersRouter);
 router.use("/activities", activitiesRouter);
