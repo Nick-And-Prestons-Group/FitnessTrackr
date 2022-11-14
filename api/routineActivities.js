@@ -1,4 +1,4 @@
 const express = require("express");
-const router = express.Router();
+const routineActivitiesRouter = express.Router();
 
 module.exports = router;

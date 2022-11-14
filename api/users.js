@@ -1,4 +1,8 @@
 const express = require("express");
-const router = express.Router();
+const usersRouter = express.Router();
+
+usersRouter.post("/register", async (req, res, next) => {
+    // code here
+})
 
 module.exports = router;
