@@ -1,5 +1,4 @@
 const express = require("express");
-<<<<<<< HEAD
 const usersRouter = express.Router();
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
@@ -16,8 +15,3 @@ usersRouter.post("/register", async (req, res, next) => {
 });
 
 module.exports = usersRouter;
-=======
-const router = express.Router();
-
-module.exports = router;
->>>>>>> 613644f619f441024e63eec1ba9f00833492aa70
