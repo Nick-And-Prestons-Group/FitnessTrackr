@@ -78,7 +78,7 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
     }
 });
 
-// delete/routines/:routineId -- hard delete a routine and include the corresponding routineactivities (**)
+
 routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
     const { routineId } = req.params;
 
@@ -105,9 +105,15 @@ routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
         next({name, message})
     }
 });
-// post /routines/:routineId/activities -- Attach a single activity to a routine. Prevent duplication on (routineId, activityId) pair.
-routinesRouter.post("/:routineId/activities", async (req, res, next) => {
 
+// post /routines/:routineId/activities -- Attach a single activity to a routine. 
+// Prevent duplication on (routineId, activityId) pair.
+routinesRouter.post("/:routineId/activities", async (req, res, next) => {
+    try {
+        
+    } catch ({name, message}) {
+        next({name, message})
+    }
 });
 
 
