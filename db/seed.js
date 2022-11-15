@@ -60,3 +60,5 @@ async function resetDB() {
         console.log(error)
     }
 }
+
+// Add run DB func and initial table values.
