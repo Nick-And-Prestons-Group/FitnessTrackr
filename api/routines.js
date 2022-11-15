@@ -1,5 +1,5 @@
 const express = require("express");
-const { getPublicRoutines, createRoutine, getRoutinesById, updateRoutine } = require("../db/routines");
+const { getPublicRoutines, createRoutine, getRoutinesById, updateRoutine, destroyRoutine } = require("../db/routines");
 const routinesRouter = express.Router();
 const { requireUser } = require("./utilities");
 
@@ -43,8 +43,6 @@ routinesRouter.post("/", requireUser, async (req, res, next) => {
 });
 
 
-
-// patch/routines/:routineId -- update a routine like changing public/private status, name or goal (**)
 routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
     const { routineId } = req.params;
     const { isPublic, name, goal } = req.body;
@@ -72,7 +70,7 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
         } else {
             next({
                 name: "Unauthorized User Error",
-                message: "You cannot update a post that is not yours"
+                message: "You cannot update a routine that is not yours"
             })
         }
     } catch ({name, message}) {
@@ -82,7 +80,30 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
 
 // delete/routines/:routineId -- hard delete a routine and include the corresponding routineactivities (**)
 routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
+    const { routineId } = req.params;
 
+    try {
+        const fetchedRoutine = getRoutinesById(routineId);
+
+        if (fetchedRoutine && fetchedRoutine.creatorID === req.user.id) {
+            destroyRoutine(routineId);
+
+            res.send({
+                name: "Success",
+                message: `Successfully deleted routine ${routineId}`
+            })
+        } else {
+            next(fetchedRoutine ? {
+                name: "Unauthorized User Error",
+                message: "You cannot delete a routine that is not yours"
+            } : {
+                name: "Routine Not Found Error",
+                message: "That routine does not exist"
+            })
+        }
+    } catch ({name, message}) {
+        next({name, message})
+    }
 });
 // post /routines/:routineId/activities -- Attach a single activity to a routine. Prevent duplication on (routineId, activityId) pair.
 routinesRouter.post("/:routineId/activities", async (req, res, next) => {
