@@ -76,18 +76,16 @@ usersRouter.post("/login", async (req, res, next) => {
     }
 });
 
-// not fully functional yet
 usersRouter.get("/me", requireUser, async (req, res, next) => {
-    const { username, name, routines } = req.body;
+    const { username } = req.body;
 
     try {
-        const userRoutines = await getAllRoutinesByUser({username});
+        if (req.user.username === username) {
+            const userData = await getAllRoutinesByUser({username});
 
-        if () {
             res.send({
-                username: username,
-                name: name,
-                routines: userRoutines
+                username,
+                userData
             })
         } else {
             next({
@@ -100,14 +98,17 @@ usersRouter.get("/me", requireUser, async (req, res, next) => {
     }
 });
 
-// not fully functional yet
 usersRouter.get("/:username/routines", async (req, res, next) => {
     const { username } = req.params
-    const { routines } = req.body;
+
     try {
-        if (username) {
-            const routines = await getPublicRoutinesByUser(username);
-            res.send({routines: routines})
+        const routines = await getPublicRoutinesByUser(username);
+        
+        if (routines) {
+            res.send({ 
+                username,
+                routines 
+            })
         } else {
             next({
                 name: "Invalid User Error",
