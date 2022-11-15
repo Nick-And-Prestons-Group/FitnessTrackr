@@ -1,4 +1,8 @@
 const { client } = require('./client')
+const {createUser} = require('./users')
+const {createActivity} = require('./activities')
+const {createRoutine} = require('./routines')
+const {addActivityToRoutine} = require('./routine_activities')
 
 // Startup Functions------------------------------------
 async function dropTables() {
@@ -19,7 +23,7 @@ async function createTables() {
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
-                name VARCHAR(255) NOT NULL,4
+                name VARCHAR(255) NOT NULL,
             );
             CREATE TABLE activities (
                 "id" SERIAL PRIMARY KEY,
@@ -47,6 +51,42 @@ async function createTables() {
     }
 }
 
+async function createInitialUsers(){
+    try {
+        await createUser({username: "Nicktest", password: "Nickpass", name: "NickDev"})
+        await createUser({username: "Prestest", password: "Prespass", name: "PrestDev"})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function createInitialActivities(){
+    try {
+        await createActivity({name:"PushupDev", description:"Do pushups until you die"})
+        await createActivity({name:"SitupDev", description:"Do situps until you come back to life"})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function createInitialRoutines(){
+    try {
+        await createRoutine({creatorID: 2, isPublic: true, name: "My abs!", goal: "I want to die"})
+        await createRoutine({creatorID: 1, isPublic: true, name: "My everything!", goal: "I want to die but like, not forever"})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function createInitialRoutineActivities(){
+    try {
+        await addActivityToRoutine({routineId: 1, activityId: 1, duration: 5, count: 5})
+        await addActivityToRoutine({routineId: 2, activityId: 1, duration: 3, count: 5})
+        await addActivityToRoutine({routineId: 2, activityId: 2, duration: 4, count: 2})
+    } catch (error) {
+        console.log(error)        
+    }
+}
 
 async function resetDB() {
     try {
@@ -54,11 +94,16 @@ async function resetDB() {
 
         await dropTables();
         await createTables();
-
+        await createInitialUsers();
+        await createInitialActivities();
+        await createInitialRoutines();
+        await createInitialRoutineActivities();
         client.end();
     } catch (error) {
         console.log(error)
     }
 }
+
+resetDB();
 
 // Add run DB func and initial table values.
