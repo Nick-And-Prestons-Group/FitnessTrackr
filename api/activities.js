@@ -1,7 +1,7 @@
 const express = require("express");
 const activitiesRouter = express.Router();
 const activityFunc = require('../db');
-const { createActivity, getActivityById, updateActivity } = require("../db/activities");
+const { createActivity, getAllActivities, getActivityById, updateActivity } = require("../db/activities");
 
 activitiesRouter.use((req,res, next)=>{
     console.log("A request is being made to /activities");
@@ -9,7 +9,7 @@ activitiesRouter.use((req,res, next)=>{
 });
 
 activitiesRouter.get('/', async( req, res)=>{
-    const activities = await activityFunc.getAllActivities();
+    const activities = await getAllActivities();
 
     res.send({ activities });
 });
@@ -37,7 +37,7 @@ activitiesRouter.patch('/:activityId', async(req, res, next) =>{
     }
 })
 
-activitiesRouter.get('/activityId/routines', async(req, res, next)=>{
+activitiesRouter.get('/:activityId/routines', async(req, res, next)=>{
     const {id} = req.body
     try {
         const activities = await getActivityById(id);
