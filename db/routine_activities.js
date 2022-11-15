@@ -15,7 +15,6 @@ async function getRoutineActivityById(id) {
 
 async function getRoutineActivitiesByRoutine({id}) {
     try {
-        // select and return an array of all routine_activity records
         const { rows: [routines] } = await client.query(`
             SELECT * FROM "routineActivities"
             WHERE "routineActivities"."routineId"=$1;
@@ -26,6 +25,20 @@ async function getRoutineActivitiesByRoutine({id}) {
         console.error
     }
 };
+
+async function addActivityToRoutine({ routineID, activityID, count, duration}){
+    try {
+        const {result} = await client.query(`
+            INSERT INTO "routineActivities" ("routineId", "activityId", duration, count)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *;
+        `,[routineID, activityID, count, duration])
+
+        return result
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function updateRoutineActivity({ id, count, duration}) {
     try {
@@ -57,4 +70,4 @@ async function destroyRoutineActivity({id}){
     }
 }
 
-module.exports = {getRoutineActivityById, getRoutineActivitiesByRoutine, updateRoutineActivity, destroyRoutineActivity}
+module.exports = {addActivityToRoutine, getRoutineActivityById, getRoutineActivitiesByRoutine, updateRoutineActivity, destroyRoutineActivity}
