@@ -3,7 +3,7 @@ const {client} = require('./client')
 async function createRoutine( {creatorID, isPublic, name, goal} ){
     try {
         const {result}=await client.query(`
-        INSERT INTO routines ("creatorID", isPublic, name, goal)
+        INSERT INTO routines ("creatorID", "isPublic", name, goal)
         VALUES ($1, $2, $3, $4)
         RETURNING *;
         `, [creatorID, isPublic, name, goal])
@@ -18,7 +18,7 @@ async function updateRoutine({ id, isPublic, name, goal}) {
     try {
         const {rows: [user]} = await client.query(`
             UPDATE routines
-            SET isPublic = $1,
+            SET "isPublic" = $1,
                 name = $2,
                 goal = $3
             WHERE id = ${id}
@@ -106,7 +106,7 @@ async function getPublicRoutines (){
 };
 
 async function getAllRoutinesByUser({username}) {
-    const { username } = users.id
+    // const { username } = users.id
 
     try {
         // select and return array of all routines made by user including their activities
@@ -122,7 +122,7 @@ async function getAllRoutinesByUser({username}) {
 };
 
 async function getPublicRoutinesByUser({username}) {
-    const { username } = users.id
+    // const { username } = users.id
 
     try {
     // select and return array of all public routines made by user including their activities

@@ -8,8 +8,10 @@ const {addActivityToRoutine} = require('./routine_activities')
 async function dropTables() {
     try {
         await client.query(`
-            DROP TABLE IF EXISTS users;
+            DROP TABLE IF EXISTS "routineActivities";
+            DROP TABLE IF EXISTS routines;
             DROP TABLE IF EXISTS activities;
+            DROP TABLE IF EXISTS users;
         `);
     } catch (error) {
         console.log(error)
@@ -23,7 +25,7 @@ async function createTables() {
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
-                name VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL
             );
             CREATE TABLE activities (
                 "id" SERIAL PRIMARY KEY,
