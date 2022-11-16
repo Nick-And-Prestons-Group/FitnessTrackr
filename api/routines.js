@@ -1,5 +1,7 @@
 const express = require("express");
+const { getActivityById } = require("../db/activities");
 const { getPublicRoutines, createRoutine, getRoutinesById, updateRoutine, destroyRoutine } = require("../db/routines");
+const { addActivityToRoutine } = require("../db/routine_activities");
 const routinesRouter = express.Router();
 const { requireUser } = require("./utilities");
 
@@ -108,9 +110,34 @@ routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
 
 // post /routines/:routineId/activities -- Attach a single activity to a routine. 
 // Prevent duplication on (routineId, activityId) pair.
-routinesRouter.post("/:routineId/activities", async (req, res, next) => {
+routinesRouter.post("/:routineID/activities", async (req, res, next) => {
+    const { routineID } = req.params;
+    const { activityID, count, duration } = req.body;
+    const addedActivity = {};
+
+    if (activityID) {
+        addedActivity.activityId = activityId
+    }
+
+    if (count) {
+        addedActivity.count = count
+    }
+
+    if (duration) {
+        addedActivity.duration = duration
+    }
+
     try {
-        
+        if (routineID === activityID) {
+            next({
+                name: "Duplication Error",
+                message: "That pair already exists"
+            })
+        } else {
+            const newRoutineActivity = await addActivityToRoutine(routineID, { addedActivity })
+
+            res.send({ newRoutineActivity })
+        }
     } catch ({name, message}) {
         next({name, message})
     }
