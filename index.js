@@ -9,9 +9,6 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
 
-const staticMiddleware = express.static(path.join(__dirname, "public"));
-app.use(staticMiddleware);
-
 const router = require("./api");
 app.use("/api", router);
 

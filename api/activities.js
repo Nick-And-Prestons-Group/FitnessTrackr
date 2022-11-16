@@ -2,7 +2,7 @@ const express = require("express");
 const activitiesRouter = express.Router();
 const activityFunc = require('../db');
 const { createActivity, getAllActivities, getActivityById, updateActivity } = require("../db/activities");
-const  requireUser  = require('./utilities')
+const { requireUser }  = require('./utilities')
 
 activitiesRouter.use((req,res, next)=>{
     console.log("A request is being made to /activities");

@@ -2,7 +2,7 @@ const express = require("express");
 const routineActivitiesRouter = express.Router();
 const {updateRoutineActivity, destroyRoutineActivity} = require('../db/routine_activities')
 const { getUserById } = require('../db/users'); 
-const  requireUser  = require("./utilities");
+const { requireUser } = require("./utilities");
 
 routineActivitiesRouter.patch('/:routineActivityId', requireUser, async(req, res, next)=>{
     const {id, count, duration} = req.body;

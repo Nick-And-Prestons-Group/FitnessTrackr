@@ -107,3 +107,5 @@ async function resetDB() {
 }
 
 resetDB();
+
+// Add run DB func and initial table values.

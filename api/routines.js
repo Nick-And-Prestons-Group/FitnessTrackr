@@ -1,5 +1,7 @@
 const express = require("express");
+const { getActivityById } = require("../db/activities");
 const { getPublicRoutines, createRoutine, getRoutinesById, updateRoutine, destroyRoutine } = require("../db/routines");
+const { addActivityToRoutine } = require("../db/routine_activities");
 const routinesRouter = express.Router();
 const { requireUser } = require("./utilities");
 
