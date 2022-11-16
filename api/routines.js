@@ -106,16 +106,6 @@ routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
     }
 });
 
-// post /routines/:routineId/activities -- Attach a single activity to a routine. 
-// Prevent duplication on (routineId, activityId) pair.
-routinesRouter.post("/:routineId/activities", async (req, res, next) => {
-    try {
-        
-    } catch ({name, message}) {
-        next({name, message})
-    }
-});
-
 routinesRouter.post("/:routineID/activities", async (req, res, next) => {
     const { routineID } = req.params;
     const { activityID, count, duration } = req.body;
