@@ -82,11 +82,11 @@ async function getRoutinesWithoutActivities (id){
 
 async function getAllRoutines (){
     try {
-        const { rows: [routines] } = await client.query(`
+        const { rows } = await client.query(`
             SELECT * FROM "routineActivities";
         `);
         
-        return routines
+        return rows
     } catch (error) {
         console.error
     }
@@ -94,12 +94,12 @@ async function getAllRoutines (){
 
 async function getPublicRoutines (){
     try {
-        const { rows: [routines] } = await client.query(`
+        const { rows } = await client.query(`
             SELECT * FROM routines
             WHERE "isPublic"=true;
         `)
         
-        return routines
+        return rows
     } catch (error) {
         console.error
     }
