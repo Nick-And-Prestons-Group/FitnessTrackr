@@ -100,7 +100,6 @@ async function resetDB() {
         await createInitialActivities();
         await createInitialRoutines();
         await createInitialRoutineActivities();
-        console.log("Done with tests");
         client.end();
     } catch (error) {
         console.log(error)

@@ -106,6 +106,8 @@ async function getPublicRoutines (){
 };
 
 async function getAllRoutinesByUser({username}) {
+    // const { username } = users.id
+
     try {
         // select and return array of all routines made by user including their activities
         const { rows: [routines] } = await client.query(`
@@ -120,6 +122,8 @@ async function getAllRoutinesByUser({username}) {
 };
 
 async function getPublicRoutinesByUser({username}) {
+    // const { username } = users.id
+
     try {
     // select and return array of all public routines made by user including their activities
         const allRoutines = await getAllRoutinesByUser({username})
