@@ -116,5 +116,37 @@ routinesRouter.post("/:routineId/activities", async (req, res, next) => {
     }
 });
 
+routinesRouter.post("/:routineID/activities", async (req, res, next) => {
+    const { routineID } = req.params;
+    const { activityID, count, duration } = req.body;
+    const addedActivity = {};
+
+    if (activityID) {
+        addedActivity.activityId = activityId
+    }
+
+    if (count) {
+        addedActivity.count = count
+    }
+
+    if (duration) {
+        addedActivity.duration = duration
+    }
+
+    try {
+        if (routineID === activityID) {
+            next({
+                name: "Duplication Error",
+                message: "That pair already exists"
+            })
+        } else {
+            const newRoutineActivity = await addActivityToRoutine(routineID, { addedActivity })
+
+            res.send({ newRoutineActivity })
+        }
+    } catch ({name, message}) {
+        next({name, message})
+    }
+});
 
 module.exports = routinesRouter;
