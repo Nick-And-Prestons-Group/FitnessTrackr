@@ -147,7 +147,7 @@ async function getPublicRoutinesByActivity({id}) {
             SELECT routines.* 
             FROM routines
             JOIN "routineActivities" ON routines.id="routineActivities"."activityId"
-            WHERE "routineActivities"."activityId"=$1;
+            WHERE "routineActivities"."activityId"=$1 AND "isPublic" = true;
         `, [id])
         
         return routines
