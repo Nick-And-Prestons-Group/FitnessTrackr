@@ -1,5 +1,19 @@
 const {client} = require('./client')
 
+async function getActivitySearch({ searchInput }){
+    try {
+        const {rows} = await client.query(`
+        SELECT * FROM activities
+        WHERE name LIKE %${searchInput}%
+        RETURNING *;
+        `)
+
+        return rows
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function createActivity( {name, description} ) {
     try {
         const {result} = await client.query(`
@@ -82,4 +96,4 @@ async function getActivityByName (name){
     }
 }
 
-module.exports = {createActivity, updateActivity, getActivityById, getAllActivities, addActivityToRoutine, getActivityByName}
+module.exports = {getActivitySearch, createActivity, updateActivity, getActivityById, getAllActivities, addActivityToRoutine, getActivityByName}

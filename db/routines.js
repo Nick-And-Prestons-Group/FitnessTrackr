@@ -1,5 +1,19 @@
 const {client} = require('./client')
 
+async function getRoutineSearch({ searchInput }){
+    try {
+        const {rows} = await client.query(`
+        SELECT * FROM routines
+        WHERE name LIKE %${searchInput}%
+        RETURNING *;
+        `)
+
+        return rows
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function createRoutine( {creatorID, isPublic, name, goal} ){
     try {
         const {result}=await client.query(`
@@ -80,22 +94,37 @@ async function getRoutinesWithoutActivities (id){
     }
 };
 
-async function getAllRoutines (){
-    try {
-        const { rows } = await client.query(`
-            SELECT * FROM "routineActivities";
-        `);
+// async function getAllRoutines (){
+//     try {
+//         const { rows } = await client.query(`
+//             SELECT * FROM "routineActivities";
+//         `);
         
-        return rows
+//         return rows
+//     } catch (error) {
+//         console.error
+//     }
+// };
+
+async function getAllRoutines() {
+    try {
+      const { rows: routines } = await client.query(`
+      SELECT routines.*, users.username AS "creatorName"
+      FROM routines
+      JOIN users ON routines."creatorId" = users.id 
+      `);
+      return attachActivitiesToRoutines(routines);
     } catch (error) {
-        console.error
+      throw error
     }
-};
+  }
 
 async function getPublicRoutines (){
     try {
         const { rows } = await client.query(`
-            SELECT * FROM routines
+            SELECT routines.*, users.username AS "creatorName"
+            FROM routines
+            JOIN users ON routines."creatorId" = users.id 
             WHERE "isPublic"=true;
         `)
         
@@ -156,4 +185,33 @@ async function getPublicRoutinesByActivity({id}) {
     }
 };
 
-module.exports = { createRoutine, updateRoutine, destroyRoutine, getRoutinesById, getRoutinesWithoutActivities, getAllRoutines, getAllRoutinesByUser, getPublicRoutines, getPublicRoutinesByUser, getPublicRoutinesByActivity}
+async function attachActivitiesToRoutines(routines) {
+    // no side effects
+    const routinesToReturn = [...routines];
+    const binds = routines.map((_, index) => `$${index + 1}`).join(', ');
+    const routineIds = routines.map(routine => routine.id);
+    if (!routineIds?.length) return [];
+    
+    try {
+      // get the activities, JOIN with routine_activities (so we can get a routineId), and only those that have those routine ids on the routine_activities join
+      const { rows: activities } = await client.query(`
+        SELECT activities.*, routine_activities.duration, routine_activities.count, routine_activities.id AS "routineActivityId", routine_activities."routineId"
+        FROM activities 
+        JOIN routine_activities ON routine_activities."activityId" = activities.id
+        WHERE routine_activities."routineId" IN (${ binds });
+      `, routineIds);
+  
+      // loop over the routines
+      for(const routine of routinesToReturn) {
+        // filter the activities to only include those that have this routineId
+        const activitiesToAdd = activities.filter(activity => activity.routineId === routine.id);
+        // attach the activities to each single routine
+        routine.activities = activitiesToAdd;
+      }
+      return routinesToReturn;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+module.exports = { getRoutineSearch,createRoutine, updateRoutine, destroyRoutine, getRoutinesById, getRoutinesWithoutActivities, getAllRoutines, getAllRoutinesByUser, getPublicRoutines, getPublicRoutinesByUser, getPublicRoutinesByActivity}

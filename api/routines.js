@@ -1,9 +1,20 @@
 const express = require("express");
 const { getActivityById } = require("../db/activities");
-const { getPublicRoutines, createRoutine, getRoutinesById, updateRoutine, destroyRoutine } = require("../db/routines");
+const { getRoutineSearch, getPublicRoutines, createRoutine, getRoutinesById, updateRoutine, destroyRoutine } = require("../db/routines");
 const { addActivityToRoutine } = require("../db/routine_activities");
 const routinesRouter = express.Router();
 const { requireUser } = require("./utilities");
+
+routinesRouter.get("/search", async(req, res, next) =>{
+    const {searchinput}= req.body
+    try {
+        const searchResults = await getRoutineSearch(searchinput);
+
+        res.send(searchResults)
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 routinesRouter.get("/", async (req, res, next) => {
     try {

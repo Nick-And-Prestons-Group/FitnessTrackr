@@ -1,7 +1,7 @@
 const express = require("express");
 const activitiesRouter = express.Router();
 const activityFunc = require('../db');
-const { createActivity, getAllActivities, getActivityById, updateActivity } = require("../db/activities");
+const {getActivitySearch, createActivity, getAllActivities, getActivityById, updateActivity } = require("../db/activities");
 const { requireUser }  = require('./utilities')
 
 activitiesRouter.use((req,res, next)=>{
@@ -9,11 +9,23 @@ activitiesRouter.use((req,res, next)=>{
     next();
 });
 
-activitiesRouter.get('/', async( req, res)=>{
+activitiesRouter.get('/', async( req, res, next)=>{
     const activities = await getAllActivities();
 
     res.send({ activities });
 });
+
+activitiesRouter.get('/search', async( req, res, next)=>{
+    const {searchinput} = req.body
+    
+    try {
+        const searchresults= await getActivitySearch(searchinput);
+
+        res.send({ searchresults })
+    } catch ({name, message}) {
+        next({name, message})
+    }
+})
 
 activitiesRouter.post('/', requireUser, async(req, res, next) => {
     const{ name, description }=  req.body;
