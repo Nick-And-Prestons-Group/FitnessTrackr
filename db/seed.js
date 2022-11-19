@@ -66,6 +66,7 @@ async function createInitialActivities(){
     try {
         await createActivity({name:"PushupDev", description:"Do pushups until you die"})
         await createActivity({name:"SitupDev", description:"Do situps until you come back to life"})
+        await createActivity({name:"SitupDe5v", description:"Do situ5ps until you come back to life"})
     } catch (error) {
         console.log(error)
     }

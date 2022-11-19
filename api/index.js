@@ -26,14 +26,16 @@ router.use(async (req, res, next) => {
         const token = auth.slice(prefix.length)
 
         try {
-            const { id } = jwt.verify(token, JWT_SECRET);
+            const parsedToken = jwt.verify(token, JWT_SECRET);
+
+            const id = parsedToken && parsedToken.id
 
             if (id) {
                 req.user = await getUserById(id);
                 next();
             }
-        } catch ({name, message}) {
-            next({name, message});
+        } catch (error) {
+            next(error);
         }
     } else {
         next({

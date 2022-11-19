@@ -12,7 +12,7 @@ usersRouter.post("/register", async (req, res, next) => {
     try {
         const userTest = await getUserByUsername(username);
 
-        if (userTest) {
+        if (userTest && userTest.id) {
             next({
                 name: "Username Error",
                 message: "A user by that username already exists"
@@ -52,14 +52,15 @@ usersRouter.post("/login", async (req, res, next) => {
     }
 
     try {
-        const user = await getUserByUsername(username);
+        const user = await getUser({username, password});
         const token = jwt.sign({
             id: user.id,
             username }, JWT_SECRET, {
                 expiresIn: "1w"
         });
 
-        if (user && user.password === password) {
+        console.log(user);
+        if (user.password === password) {
             res.send({
                 message: "Logged in!",
                 token: token
@@ -77,14 +78,15 @@ usersRouter.post("/login", async (req, res, next) => {
 });
 
 usersRouter.get("/me", requireUser, async (req, res, next) => {
-    const { username } = req.body;
+    const { userId } = req.body;
 
     try {
-        if (req.user.username === username) {
-            const userData = await getAllRoutinesByUser({username});
+        if (req.user.id === userId) {
+            const userData = await getAllRoutinesByUser({userId});
+            console.log(userData);
 
             res.send({
-                username,
+                // add username to return here
                 userData
             })
         } else {
@@ -94,19 +96,20 @@ usersRouter.get("/me", requireUser, async (req, res, next) => {
             })
         }
     } catch ({name, message}) {
-        next({name, messsage})
+        next({name, message})
     }
 });
 
-usersRouter.get("/:username/routines", async (req, res, next) => {
-    const { username } = req.params
+usersRouter.get("/:userId/routines", async (req, res, next) => {
+    const { userId } = req.params
 
     try {
-        const routines = await getPublicRoutinesByUser(username);
+        const routines = await getPublicRoutinesByUser({userId});
+        console.log(routines)
         
         if (routines) {
             res.send({ 
-                username,
+                userId,
                 routines 
             })
         } else {

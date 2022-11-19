@@ -15,24 +15,25 @@ async function getRoutineActivityById(id) {
 
 async function getRoutineActivitiesByRoutine({id}) {
     try {
-        const { rows: [routines] } = await client.query(`
+        const { rows } = await client.query(`
             SELECT * FROM "routineActivities"
             WHERE "routineActivities"."routineId"=$1;
         `, [id])
         
-        return routines
+        return rows
     } catch (error) {
         console.error
     }
 };
 
-async function addActivityToRoutine({ routineID, activityID, count, duration}){
+async function addActivityToRoutine(routineId, {activityId, count, duration}){
     try {
-        const {result} = await client.query(`
-            INSERT INTO "routineActivities" ("routineId", "activityId", duration, count)
+        const {rows: [result]} = await client.query(`
+            INSERT INTO "routineActivities" ("routineId", "activityId", count, duration)
             VALUES ($1, $2, $3, $4)
             RETURNING *;
-        `,[routineID, activityID, count, duration])
+        `,[routineId, activityId, count, duration])
+        console.log("result: ", result)
 
         return result
     } catch (error) {
@@ -44,8 +45,7 @@ async function updateRoutineActivity({ id, count, duration}) {
     try {
         const {rows: [user]} = await client.query(`
             UPDATE "routineActivities"
-                SET count = $1
-                duration = $2
+            SET count = $1, duration = $2
             WHERE id = ${id}
             RETURNING *;
         `, [count, duration])
@@ -58,7 +58,7 @@ async function updateRoutineActivity({ id, count, duration}) {
 
 async function destroyRoutineActivity({id}){
     try {
-        const result = await client.query(`
+        const {rows: [result]} = await client.query(`
             DELETE FROM "routineActivities"
             WHERE id = ${id}
             RETURNING *;

@@ -1,11 +1,10 @@
 const {client} = require('./client')
 
-async function getActivitySearch({ searchInput }){
+async function getActivitySearch(searchInput){
     try {
         const {rows} = await client.query(`
         SELECT * FROM activities
-        WHERE name LIKE %${searchInput}%
-        RETURNING *;
+        WHERE "name" LIKE '%${searchInput}%';
         `)
 
         return rows
@@ -16,7 +15,7 @@ async function getActivitySearch({ searchInput }){
 
 async function createActivity( {name, description} ) {
     try {
-        const {result} = await client.query(`
+        const {rows: [result]} = await client.query(`
         INSERT INTO activities(name, description)
         VALUES ($1,$2)
         RETURNING *;
@@ -28,17 +27,25 @@ async function createActivity( {name, description} ) {
     }
 };
 
-async function updateActivity({ id, name, description}){
-    try {
-        const {rows: [user]} = await client.query(`
-            UPDATE activities
-            SET name= $1,
-                description= $2
-            WHERE id = ${id}
-            RETURNING *;
-            `, [name, description])
+async function updateActivity(id, fields={}){
 
-        return user
+    const setString = Object.keys(fields).map(
+        (key, index) => `"${ key }"=$${ index + 1 }`
+      ).join(', ');
+    
+      if (setString.length === 0) {
+        return;
+      }
+
+    try {
+        const {rows: [result]} = await client.query(`
+            UPDATE activities
+            SET ${ setString }
+            WHERE id=${id}
+            RETURNING *;
+            `, Object.values(fields));
+
+        return result
     } catch (error) {
         console.log(error)
     }
@@ -46,12 +53,12 @@ async function updateActivity({ id, name, description}){
 
 async function getActivityById(id) {
     try {
-        const { rows } = await client.query(`
+        const { rows: [result] } = await client.query(`
             SELECT * FROM activities
             WHERE id=$1;
         `, [id]);
 
-        return rows
+        return result
     } catch (error) {
         console.error
     }
@@ -72,11 +79,13 @@ async function getAllActivities (){
 
 async function addActivityToRoutine({ routineId, activityId, count, duration}){
     try {
-        const {result} = await client.query(`
+        const {rows: [result]} = await client.query(`
         INSERT INTO "routineActivities" ("routineId", "activityId", count, duration)
         VALUES ($1, $2, $3, $4)
         RETURNING *;
         `, [routineId, activityId, count, duration])
+
+        return result
     } catch (error) {
         console.log(error)
     }
@@ -96,4 +105,4 @@ async function getActivityByName (name){
     }
 }
 
-module.exports = {getActivitySearch, createActivity, updateActivity, getActivityById, getAllActivities, addActivityToRoutine, getActivityByName}
+module.exports = {getActivitySearch, createActivity, updateActivity, getActivityById, getAllActivities, addActivityToRoutine, getActivityByName, updateActivity}

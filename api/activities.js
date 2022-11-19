@@ -16,12 +16,11 @@ activitiesRouter.get('/', async( req, res, next)=>{
 });
 
 activitiesRouter.get('/search', async( req, res, next)=>{
-    const {searchinput} = req.body
+    const {searchInput} = req.body
     
     try {
-        const searchresults= await getActivitySearch(searchinput);
-
-        res.send({ searchresults })
+        const searchResults= await getActivitySearch(searchInput);
+        res.send(searchResults)
     } catch ({name, message}) {
         next({name, message})
     }
@@ -33,27 +32,37 @@ activitiesRouter.post('/', requireUser, async(req, res, next) => {
     try {
         const newAct= await createActivity({ name, description })
 
-        res.send({post: newAct})
+        res.send({newAct})
     } catch ({name, message}) {
        next({name, message})
     }
 })
 
 activitiesRouter.patch('/:activityId', requireUser, async(req, res, next) =>{
-    const {id, name, description}= req.body;
+    const {activityId} = req.params;
+    const {name, description}= req.body;
+    const updateFields = {};
 
+    if (name) {
+        updateFields.name = name
+    }
+
+    if (description) {
+        updateFields.description = description
+    }
     try {
-        const updatedAct= await updateActivity({id, name, description})
-        res.send({post: updatedAct})
+        const updatedAct= await updateActivity(activityId, updateFields)
+        res.send({updatedAct})
     } catch ({name, message}) {
         next({name, message})
     }
 })
 
 activitiesRouter.get('/:activityId/routines', async(req, res, next)=>{
-    const {id} = req.body
+    const {activityId} = req.params
     try {
-        const activities = await getActivityById(id);
+        const activities = await getActivityById(activityId);
+        // no routines?
 
         res.send({activities});
     } catch ({name, message}) {

@@ -5,10 +5,10 @@ const { getUserById } = require('../db/users');
 const { requireUser } = require("./utilities");
 
 routineActivitiesRouter.patch('/:routineActivityId', requireUser, async(req, res, next)=>{
-    const {id, count, duration} = req.body;
+    const { id } = req.params;
+    const {count, duration} = req.body;
     try {
-        const user = await getUserById(req.params.userId)
-
+        // get routine by ?? then compare those routine.creatorId to req user id
         if (user && user.id === req.user.id){
         const updatedRoutAct= await updateRoutineActivity({id, count, duration})
 

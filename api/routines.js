@@ -1,16 +1,39 @@
 const express = require("express");
 const { getActivityById } = require("../db/activities");
 const { getRoutineSearch, getPublicRoutines, createRoutine, getRoutinesById, updateRoutine, destroyRoutine } = require("../db/routines");
-const { addActivityToRoutine } = require("../db/routine_activities");
+const { addActivityToRoutine, getRoutineActivitiesByRoutine } = require("../db/routine_activities");
 const routinesRouter = express.Router();
 const { requireUser } = require("./utilities");
 
 routinesRouter.get("/search", async(req, res, next) =>{
-    const {searchinput}= req.body
-    try {
-        const searchResults = await getRoutineSearch(searchinput);
+    const {searchInput}= req.body
 
-        res.send(searchResults)
+    try {    
+        const searchArray = searchInput.split(' ').map((element) => {
+            return `%${element}%`
+        })
+        console.log("search array: ", searchArray)
+
+        const arr = searchArray.map(element => {
+           const result = getRoutineSearch(element);
+           console.log("result: ", result);
+            return result
+        })
+        console.log("arr: ", arr)
+
+        const allResults = await Promise.all(arr);
+        console.log("all res: ", allResults)
+        
+        const resultArr = allResults.reduce((acc, val) => {
+            if(Array.isArray(val)) {
+                acc = [...acc, ...val]
+            }
+            return acc
+        }, [])
+        
+
+        console.log("search res: ", resultArr);
+        res.send(resultArr)
     } catch (error) {
         console.log(error)
     }
@@ -27,16 +50,8 @@ routinesRouter.get("/", async (req, res, next) => {
 });
 
 routinesRouter.post("/", requireUser, async (req, res, next) => {
-    const { isPublic, name, goal } = req.body;
+    const { creatorID, isPublic, name, goal} = req.body;
     const routineData = {};
-
-    if (req.user) {
-        routineData.creatorID = req.user.id
-    }
-
-    if (isPublic) {
-        routineData.isPublic = isPublic
-    }
 
     if (name) {
         routineData.name = name
@@ -44,6 +59,14 @@ routinesRouter.post("/", requireUser, async (req, res, next) => {
 
     if (goal) {
         routineData.goal = goal
+    }
+
+    if (isPublic) {
+        routineData.isPublic = isPublic
+    }
+
+    if (req.user) {
+        routineData.creatorID = req.user.id
     }
 
     try {
@@ -77,7 +100,7 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
         const fetchedRoutine = await getRoutinesById(routineId);
 
         if (fetchedRoutine.creatorID === req.user.id) {
-            const updatedRoutine = await updateRoutine(routineId, { updateFields });
+            const updatedRoutine = await updateRoutine(routineId, updateFields);
 
             res.send({ updatedRoutine });
         } else {
@@ -96,10 +119,10 @@ routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
     const { routineId } = req.params;
 
     try {
-        const fetchedRoutine = getRoutinesById(routineId);
+        const fetchedRoutine = await getRoutinesById(routineId);
 
         if (fetchedRoutine && fetchedRoutine.creatorID === req.user.id) {
-            destroyRoutine(routineId);
+            await destroyRoutine({id: routineId});
 
             res.send({
                 name: "Success",
@@ -119,12 +142,12 @@ routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
     }
 });
 
-routinesRouter.post("/:routineID/activities", async (req, res, next) => {
-    const { routineID } = req.params;
-    const { activityID, count, duration } = req.body;
+routinesRouter.post("/:routineId/activities", async (req, res, next) => {
+    const { routineId } = req.params;
+    const { activityId, count, duration } = req.body;
     const addedActivity = {};
 
-    if (activityID) {
+    if (activityId) {
         addedActivity.activityId = activityId
     }
 
@@ -137,16 +160,33 @@ routinesRouter.post("/:routineID/activities", async (req, res, next) => {
     }
 
     try {
-        if (routineID === activityID) {
+        const fetchedRoutineAct = await getRoutineActivitiesByRoutine({id: routineId});
+        console.log(fetchedRoutineAct);
+        const duplicatedRoutineActivity = fetchedRoutineAct.find((routineActivity, idx) => {
+            return routineActivity.activityId == activityId
+        })
+        console.log("i am a duplicate: ", duplicatedRoutineActivity);
+
+        const activityCheck = await getActivityById(activityId);
+        console.log(activityCheck);
+
+        if (!activityCheck) {
+            next({
+                name: "Activity doesn't exist",
+                message: "Activity doesn't exist"
+            })
+        };
+
+        if (duplicatedRoutineActivity) {
             next({
                 name: "Duplication Error",
                 message: "That pair already exists"
             })
-        } else {
-            const newRoutineActivity = await addActivityToRoutine(routineID, { addedActivity })
+        }
+        console.log("i am running")
+            const newRoutineActivity = await addActivityToRoutine(routineId, addedActivity)
 
             res.send({ newRoutineActivity })
-        }
     } catch ({name, message}) {
         next({name, message})
     }
