@@ -15,14 +15,37 @@ activitiesRouter.get('/', async( req, res, next)=>{
     res.send({ activities });
 });
 
-activitiesRouter.get('/search', async( req, res, next)=>{
-    const {searchInput} = req.body
-    
-    try {
-        const searchResults= await getActivitySearch(searchInput);
-        res.send(searchResults)
-    } catch ({name, message}) {
-        next({name, message})
+activitiesRouter.get("/search", async(req, res, next) =>{
+    const {searchInput}= req.body
+
+    try {    
+        const searchArray = searchInput.split(' ').map((element) => {
+            return `%${element}%`
+        })
+        console.log("search array: ", searchArray)
+
+        const arr = searchArray.map(element => {
+           const result = getActivitySearch(element);
+           console.log("result: ", result);
+            return result
+        })
+        console.log("arr: ", arr)
+
+        const allResults = await Promise.all(arr);
+        console.log("all res: ", allResults)
+        
+        const resultArr = allResults.reduce((acc, val) => {
+            if(Array.isArray(val)) {
+                acc = [...acc, ...val]
+            }
+            return acc
+        }, [])
+        
+
+        console.log("search res: ", resultArr);
+        res.send(resultArr)
+    } catch (error) {
+        console.log(error)
     }
 })
 

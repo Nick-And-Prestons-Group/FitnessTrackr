@@ -4,8 +4,8 @@ async function getRoutineSearch(searchInput){
     try {
         const {rows} = await client.query(`
         SELECT * FROM routines
-        WHERE "name" LIKE $1;
-        `,[searchInput])
+        WHERE "name" LIKE '%${searchInput}%';;
+        `)
 
         return rows
     } catch (error) {
