@@ -83,9 +83,9 @@ async function createInitialRoutines(){
 
 async function createInitialRoutineActivities(){
     try {
-        await addActivityToRoutine({routineId: 1, activityId: 1, duration: 5, count: 5})
-        await addActivityToRoutine({routineId: 2, activityId: 1, duration: 3, count: 5})
-        await addActivityToRoutine({routineId: 2, activityId: 2, duration: 4, count: 2})
+        await addActivityToRoutine({routineId: 1}, {activityId: 1, duration: 5, count: 5})
+        await addActivityToRoutine({routineId: 2}, {activityId: 1, duration: 3, count: 5})
+        await addActivityToRoutine({routineId: 2}, {activityId: 2, duration: 4, count: 2})
     } catch (error) {
         console.log(error)        
     }
