@@ -77,7 +77,8 @@ usersRouter.post("/login", async (req, res, next) => {
     }
 });
 
-usersRouter.get("/me", requireUser, async (req, res, next) => {
+usersRouter.post("/me", requireUser, async (req, res, next) => {
+    // When uploaded to Render try running as POST to get req.body
     const { userId } = req.body;
 
     try {

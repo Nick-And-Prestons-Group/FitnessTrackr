@@ -15,7 +15,7 @@ activitiesRouter.get('/', async( req, res, next)=>{
     res.send({ activities });
 });
 
-activitiesRouter.get("/search", async(req, res, next) =>{
+activitiesRouter.post("/search", async(req, res, next) =>{
     const {searchInput}= req.body
 
     try {    
