@@ -5,7 +5,7 @@ const { addActivityToRoutine, getRoutineActivitiesByRoutine } = require("../db/r
 const routinesRouter = express.Router();
 const { requireUser } = require("./utilities");
 
-routinesRouter.get("/search", async(req, res, next) =>{
+routinesRouter.post("/search", async(req, res, next) =>{
     const {searchInput}= req.body
 
     try {    
