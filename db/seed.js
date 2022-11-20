@@ -24,8 +24,7 @@ async function createTables() {
             CREATE TABLE users (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(255) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                name VARCHAR(255) NOT NULL
+                password VARCHAR(255) NOT NULL
             );
             CREATE TABLE activities (
                 "id" SERIAL PRIMARY KEY,
@@ -55,8 +54,8 @@ async function createTables() {
 
 async function createInitialUsers(){
     try {
-        await createUser({username: "Nicktest", password: "Nickpass", name: "NickDev"})
-        await createUser({username: "Prestest", password: "Prespass", name: "PrestDev"})
+        await createUser({username: "Nicktest", password: "Nickpass"})
+        await createUser({username: "Prestest", password: "Prespass"})
     } catch (error) {
         console.log(error)
     }

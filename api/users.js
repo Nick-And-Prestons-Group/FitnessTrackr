@@ -7,7 +7,7 @@ const { createUser, getUser, getUserById, getUserByUsername } = require("../db/u
 const { getAllRoutines, getAllRoutinesByUser, getPublicRoutinesByUser } = require("../db/routines");
 
 usersRouter.post("/register", async (req, res, next) => {
-    const { username, password, name } = req.body;
+    const { username, password} = req.body;
 
     try {
         const userTest = await getUserByUsername(username);
@@ -21,8 +21,7 @@ usersRouter.post("/register", async (req, res, next) => {
 
         const user = await createUser({
             username,
-            password,
-            name
+            password
         });
 
         const token = jwt.sign({

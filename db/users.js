@@ -1,13 +1,13 @@
 const {client}= require('./client')
 
-async function createUser( { username, password, name } ) {
+async function createUser( { username, password} ) {
     try {
         const {rows: [user]} = await client.query(`
-        INSERT INTO users(username, password, name)
-        VALUES ($1, $2, $3)
+        INSERT INTO users(username, password)
+        VALUES ($1, $2)
         ON CONFLICT (username) DO NOTHING
         RETURNING *;
-        `, [username, password, name]);
+        `, [username, password]);
 
         return user
     } catch (error) {
